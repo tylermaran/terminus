@@ -61,5 +61,6 @@ const getDefaultState = (): GameState => ({
     upgradeStartTime: null,
     upgradeDuration: 0,
   },
+  fleet: [],
   lastUpdate: Date.now(),
 });

@@ -29,6 +29,7 @@ model GameState {
   metalFactoryLevel            Int      @default(1)
   metalFactoryUpgradeStartTime BigInt?
   metalFactoryUpgradeDuration  BigInt   @default(0)
+  fleet                        String?  @default("[]")
   lastUpdate                   BigInt
   createdAt                    DateTime @default(now())
   updatedAt                    DateTime @updatedAt

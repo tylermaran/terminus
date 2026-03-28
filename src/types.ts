@@ -4,6 +4,11 @@ import contrib from "blessed-contrib";
 // ═══════════════════════════════════════════════════════════════
 // GAME STATE TYPES
 // ═══════════════════════════════════════════════════════════════
+export interface Ship {
+  type: string;
+  count: number;
+}
+
 export interface GameState {
   metal: number;
   metalFactory: {
@@ -11,6 +16,7 @@ export interface GameState {
     upgradeStartTime: number | null;
     upgradeDuration: number;
   };
+  fleet: Ship[];
   lastUpdate: number;
 }
 
@@ -72,5 +78,3 @@ export interface Page {
   show: () => void;
   hide: () => void;
 }
-
-

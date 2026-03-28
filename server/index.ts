@@ -49,6 +49,7 @@ app.get("/api/game-state", async (req, res) => {
           upgradeStartTime: null,
           upgradeDuration: 0,
         },
+        fleet: [],
         lastUpdate: Date.now(),
       };
       return res.json(defaultState);
@@ -64,6 +65,7 @@ app.get("/api/game-state", async (req, res) => {
             : null,
         upgradeDuration: Number(dbState.metalFactoryUpgradeDuration),
       },
+      fleet: dbState.fleet ? JSON.parse(dbState.fleet) : [],
       lastUpdate: Number(dbState.lastUpdate),
     };
 
@@ -118,6 +120,7 @@ app.post("/api/game-state", async (req, res) => {
         metalFactoryUpgradeDuration: BigInt(
           gameState.metalFactory.upgradeDuration
         ),
+        fleet: JSON.stringify(gameState.fleet || []),
         lastUpdate: BigInt(gameState.lastUpdate),
       },
       update: {
@@ -130,6 +133,7 @@ app.post("/api/game-state", async (req, res) => {
         metalFactoryUpgradeDuration: BigInt(
           gameState.metalFactory.upgradeDuration
         ),
+        fleet: JSON.stringify(gameState.fleet || []),
         lastUpdate: BigInt(gameState.lastUpdate),
       },
     });

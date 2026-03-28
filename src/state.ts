@@ -12,6 +12,7 @@ export const getDefaultState = (): GameState => ({
     upgradeStartTime: null,
     upgradeDuration: 0,
   },
+  fleet: [],
   lastUpdate: Date.now(),
 });
 
@@ -98,4 +99,123 @@ export const getUpgradeProgress = (
   const progress = Math.min(1, elapsed / state.metalFactory.upgradeDuration);
 
   return { remaining, progress };
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SHIP BUILDING
+// ═══════════════════════════════════════════════════════════════
+export interface ShipDefinition {
+  name: string;
+  description: string;
+  cost: number;
+  productionTime: number; // in milliseconds
+  attack: number;
+  defense: number;
+}
+
+export const SHIP_DEFINITIONS: ShipDefinition[] = [
+  {
+    name: "Light Fighter",
+    description: "Fast and agile combat vessel",
+    cost: 20000,
+    productionTime: 30 * 1000, // 30 seconds
+    attack: 50,
+    defense: 10,
+  },
+  {
+    name: "Heavy Fighter",
+    description: "More powerful combat vessel",
+    cost: 60000,
+    productionTime: 60 * 1000, // 60 seconds
+    attack: 150,
+    defense: 25,
+  },
+  {
+    name: "Cargo Ship",
+    description: "Small transport vessel",
+    cost: 15000,
+    productionTime: 25 * 1000, // 25 seconds
+    attack: 5,
+    defense: 10,
+  },
+  {
+    name: "Cruiser",
+    description: "Medium warship with good balance",
+    cost: 200000,
+    productionTime: 120 * 1000, // 2 minutes
+    attack: 400,
+    defense: 50,
+  },
+  {
+    name: "Battleship",
+    description: "Heavy combat vessel",
+    cost: 500000,
+    productionTime: 240 * 1000, // 4 minutes
+    attack: 1000,
+    defense: 200,
+  },
+];
+
+export const SHIP_COSTS: Record<string, number> = {};
+SHIP_DEFINITIONS.forEach((ship) => {
+  SHIP_COSTS[ship.name] = ship.cost;
+});
+
+export const getShipDefinition = (
+  shipType: string
+): ShipDefinition | undefined => {
+  return SHIP_DEFINITIONS.find((s) => s.name === shipType);
+};
+
+export const buildShip = (
+  state: GameState,
+  shipType: string,
+  quantity: number = 1
+): { success: boolean; message: string } => {
+  const shipDef = getShipDefinition(shipType);
+
+  if (!shipDef) {
+    return {
+      success: false,
+      message: `Unknown ship type: ${shipType}`,
+    };
+  }
+
+  const totalCost = shipDef.cost * quantity;
+  const currentMetal = calculateCurrentMetal(state);
+
+  if (currentMetal < totalCost) {
+    return {
+      success: false,
+      message: `Not enough metal! Need ${totalCost.toLocaleString()} metal.`,
+    };
+  }
+
+  if (quantity <= 0) {
+    return {
+      success: false,
+      message: `Invalid quantity: ${quantity}`,
+    };
+  }
+
+  // Sync state to get current metal
+  syncState(state);
+
+  // Deduct cost
+  state.metal -= totalCost;
+
+  // Add ship to fleet
+  const existingShip = state.fleet.find((s) => s.type === shipType);
+  if (existingShip) {
+    existingShip.count += quantity;
+  } else {
+    state.fleet.push({ type: shipType, count: quantity });
+  }
+
+  state.lastUpdate = Date.now();
+
+  return {
+    success: true,
+    message: `Built ${quantity} ${shipType}${quantity > 1 ? "s" : ""}!`,
+  };
 };

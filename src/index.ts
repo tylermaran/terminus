@@ -9,6 +9,7 @@ import {
   calculateUpgradeDuration,
   isUpgrading,
   getDefaultState,
+  buildShip,
 } from "./state";
 import { formatNumber } from "./utils";
 import { createScreen, tabs } from "./ui/screen";
@@ -44,14 +45,38 @@ let renderTick = 0;
 // CREATE UI
 // ═══════════════════════════════════════════════════════════════
 const ui = createScreen();
-const { screen, tabList, resourceBar, logBox, mainContent } = ui;
+const { screen, tabList, resourceBar, logBox, mainContent, sidebar } = ui;
+
+// Track if menu is focused (for border highlighting)
+let menuFocused = true;
+
+const updateMenuBorder = () => {
+  sidebar.style.border.fg = menuFocused ? "#00d4ff" : "#1a4a6e";
+};
 
 const commandModal = createCommandModal(screen);
+
+// Build ship callback
+const handleBuildShip = async (shipType: string, quantity: number = 1) => {
+  const result = buildShip(state, shipType, quantity);
+  if (result.success) {
+    await saveState(state);
+    logMessage = `{#00ff88-fg}✓ ${result.message}{/}`;
+  } else {
+    logMessage = `{#ff3366-fg}✗ ${result.message}{/}`;
+  }
+};
 
 // Create pages
 const overviewPage = createOverviewPage(mainContent, () => state);
 const productionPage = createProductionPage(mainContent, () => state);
-const fleetPage = createFleetPage(mainContent);
+const fleetPage = createFleetPage(
+  mainContent,
+  screen,
+  tabList,
+  () => state,
+  handleBuildShip
+);
 const chatPage = createChatPage(mainContent, screen, tabList, (msg) => {
   logMessage = msg;
 });
@@ -74,21 +99,35 @@ const switchTab = (tabName: TabName) => {
   switch (tabName) {
     case "overview":
       overviewPage.show();
+      // Menu stays focused for overview
+      menuFocused = true;
+      tabList.focus();
       break;
     case "production":
       productionPage.show();
+      // Menu stays focused for production
+      menuFocused = true;
+      tabList.focus();
       break;
     case "fleet":
       fleetPage.show();
+      fleetPage.focusShipyard(); // Auto-focus shipyard
+      menuFocused = false;
       break;
     case "chat":
       chatPage.show();
+      chatPage.focusMessages(); // Auto-focus chat messages
+      menuFocused = false;
       break;
     case "map":
       mapPage.show();
+      // Menu stays focused for map
+      menuFocused = true;
+      tabList.focus();
       break;
   }
 
+  updateMenuBorder();
   screen.render();
 };
 
@@ -284,7 +323,8 @@ screen.key(["/"], () => {
   }
 });
 
-screen.key(["escape", "q", "C-c"], () => {
+// Escape handler moved above to handle fleet build mode
+screen.key(["q", "C-c"], () => {
   if (commandModalOpen) {
     closeCommandModal();
     return;
@@ -311,6 +351,8 @@ screen.key(["u", "U"], () => {
     });
   }
 });
+
+// B key handler removed - fleet now uses Enter for building
 
 screen.key(["s", "S"], () => {
   if (commandModalOpen) return;
@@ -356,45 +398,39 @@ screen.key(["5"], () => {
   switchTab("map");
 });
 
-// Map zoom controls
-screen.key(["+", "="], () => {
-  if (commandModalOpen || chatPage.isInputActive()) return;
-  if (currentTab === "map") {
-    const { currentZoom } = getMapState();
-    if (currentZoom === "stars") {
-      setZoom("system");
-      setSelectedPlanet(0);
-      logMessage = `{#00d4ff-fg}Entering ${
-        starSystems[getMapState().selectedStarIndex].name
-      }{/}`;
-    } else if (currentZoom === "system") {
-      setZoom("planet");
-      logMessage = `{#00d4ff-fg}Viewing ${
-        getCurrentPlanets()[getMapState().selectedPlanetIndex].name
-      }{/}`;
-    }
-  }
-});
+// Map zoom controls moved to +/- handlers above (now also handle fleet)
 
-screen.key(["-", "_"], () => {
-  if (commandModalOpen || chatPage.isInputActive()) return;
-  if (currentTab === "map") {
-    const { currentZoom } = getMapState();
-    if (currentZoom === "planet") {
-      setZoom("system");
-      logMessage = `{#00d4ff-fg}Viewing ${
-        starSystems[getMapState().selectedStarIndex].name
-      }{/}`;
-    } else if (currentZoom === "system") {
-      setZoom("stars");
-      logMessage = "{#00d4ff-fg}Viewing galaxy map{/}";
-    }
-  }
-});
-
-// Tab key for map navigation
+// Tab key for navigation
 screen.key(["tab"], () => {
   if (commandModalOpen || chatPage.isInputActive()) return;
+
+  // Chat tab navigation
+  if (currentTab === "chat") {
+    const focused = chatPage.getFocusedElement();
+    if (focused === null) {
+      // Menu focused → focus messages
+      menuFocused = false;
+      updateMenuBorder();
+      chatPage.focusMessages();
+    } else if (focused === "messages") {
+      // Messages focused → focus input
+      chatPage.focusInput();
+    }
+    return;
+  }
+
+  // Fleet tab navigation
+  if (currentTab === "fleet") {
+    if (!fleetPage.isFocused()) {
+      // Menu focused → focus shipyard
+      menuFocused = false;
+      updateMenuBorder();
+      fleetPage.focusShipyard();
+    }
+    return;
+  }
+
+  // Map tab navigation
   if (currentTab === "map") {
     const { currentZoom, selectedStarIndex, selectedPlanetIndex } =
       getMapState();
@@ -408,7 +444,35 @@ screen.key(["tab"], () => {
 });
 
 screen.key(["S-tab"], () => {
-  if (commandModalOpen || chatPage.isInputActive()) return;
+  if (commandModalOpen) return;
+
+  // Chat tab navigation (shift+tab)
+  if (currentTab === "chat") {
+    const focused = chatPage.getFocusedElement();
+    if (focused === "input") {
+      // Input focused → focus messages
+      chatPage.focusMessages();
+    } else if (focused === "messages") {
+      // Messages focused → unfocus (return to menu)
+      chatPage.unfocus();
+      menuFocused = true;
+      updateMenuBorder();
+    }
+    return;
+  }
+
+  // Fleet tab navigation (shift+tab)
+  if (currentTab === "fleet") {
+    if (fleetPage.isFocused()) {
+      // Shipyard focused → unfocus (return to menu)
+      fleetPage.unfocus();
+      menuFocused = true;
+      updateMenuBorder();
+    }
+    return;
+  }
+
+  // Map tab navigation
   if (currentTab === "map") {
     const { currentZoom, selectedStarIndex, selectedPlanetIndex } =
       getMapState();
@@ -425,9 +489,37 @@ screen.key(["S-tab"], () => {
   }
 });
 
-// Arrow keys for map
+// Fleet keyboard handlers
+const fleetHandlers = fleetPage.setupKeyboardHandlers(
+  () => currentTab === "fleet",
+  () => commandModalOpen,
+  () => chatPage.isInputActive()
+);
+
+// Arrow keys for map, fleet, and chat
 const handleMapArrow = (direction: "left" | "right" | "up" | "down") => {
   if (commandModalOpen || chatPage.isInputActive()) return;
+
+  // Handle chat message scrolling (up/down only, when messages focused)
+  if (
+    currentTab === "chat" &&
+    chatPage.getFocusedElement() === "messages" &&
+    (direction === "up" || direction === "down")
+  ) {
+    chatPage.scrollMessages(direction);
+    return;
+  }
+
+  // Handle fleet navigation first (up/down only, when focused)
+  if (
+    currentTab === "fleet" &&
+    fleetPage.isFocused() &&
+    (direction === "up" || direction === "down")
+  ) {
+    fleetHandlers.handleArrow(direction);
+    return;
+  }
+
   if (currentTab !== "map") return;
 
   const { currentZoom, selectedStarIndex, selectedPlanetIndex } = getMapState();
@@ -498,11 +590,95 @@ screen.key(["right"], () => handleMapArrow("right"));
 screen.key(["up"], () => handleMapArrow("up"));
 screen.key(["down"], () => handleMapArrow("down"));
 
-// Enter for chat
+// Enter for chat and fleet
 screen.key(["enter"], () => {
   if (commandModalOpen || chatPage.isInputActive()) return;
   if (currentTab === "chat") {
-    chatPage.openInput();
+    const focused = chatPage.getFocusedElement();
+    if (focused === null) {
+      // Menu focused → focus messages
+      chatPage.focusMessages();
+    } else if (focused === "messages") {
+      // Messages focused → focus input
+      chatPage.focusInput();
+    }
+  } else if (currentTab === "fleet") {
+    fleetHandlers.handleEnter();
+  }
+});
+
+// Escape for fleet build mode and unfocus
+screen.key(["escape"], (ch, key) => {
+  if (commandModalOpen) {
+    closeCommandModal();
+    return;
+  }
+  if (currentTab === "fleet") {
+    const wasHandled = fleetHandlers.handleEscape();
+    if (wasHandled) {
+      // If unfocused (not just exiting build mode), update menu state
+      if (!fleetPage.isFocused()) {
+        menuFocused = true;
+        updateMenuBorder();
+      }
+      return;
+    }
+  }
+  // Original escape handler (quit) - only if not handling fleet
+  syncState(state);
+  saveState(state)
+    .then(() => {
+      logMessage = "{#00ff88-fg}Game saved!{/}";
+      render();
+      setTimeout(() => process.exit(0), 200);
+    })
+    .catch((err) => {
+      console.error("Failed to save on exit:", err);
+      setTimeout(() => process.exit(0), 200);
+    });
+});
+
+// Plus/minus for fleet build quantity
+screen.key(["+", "="], (ch, key) => {
+  if (commandModalOpen || chatPage.isInputActive()) return;
+  if (currentTab === "fleet" && fleetPage.isFocused()) {
+    fleetHandlers.handleQuantityChange(1);
+    return;
+  }
+  if (currentTab === "map") {
+    const { currentZoom } = getMapState();
+    if (currentZoom === "stars") {
+      setZoom("system");
+      setSelectedPlanet(0);
+      logMessage = `{#00d4ff-fg}Entering ${
+        starSystems[getMapState().selectedStarIndex].name
+      }{/}`;
+    } else if (currentZoom === "system") {
+      setZoom("planet");
+      logMessage = `{#00d4ff-fg}Viewing ${
+        getCurrentPlanets()[getMapState().selectedPlanetIndex].name
+      }{/}`;
+    }
+  }
+});
+
+screen.key(["-", "_"], (ch, key) => {
+  if (commandModalOpen || chatPage.isInputActive()) return;
+  if (currentTab === "fleet" && fleetPage.isFocused()) {
+    fleetHandlers.handleQuantityChange(-1);
+    return;
+  }
+  if (currentTab === "map") {
+    const { currentZoom } = getMapState();
+    if (currentZoom === "planet") {
+      setZoom("system");
+      logMessage = `{#00d4ff-fg}Viewing ${
+        starSystems[getMapState().selectedStarIndex].name
+      }{/}`;
+    } else if (currentZoom === "system") {
+      setZoom("stars");
+      logMessage = "{#00d4ff-fg}Viewing galaxy map{/}";
+    }
   }
 });
 
@@ -549,6 +725,8 @@ const initialize = async () => {
 
     // Focus and show initial tab
     tabList.focus();
+    menuFocused = true;
+    updateMenuBorder();
     switchTab("overview");
 
     // Game loop

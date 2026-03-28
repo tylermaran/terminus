@@ -27,6 +27,7 @@ export const loadGameState = async (
             : null,
         upgradeDuration: Number(dbState.metalFactoryUpgradeDuration),
       },
+      fleet: dbState.fleet ? JSON.parse(dbState.fleet) : [],
       lastUpdate: Number(dbState.lastUpdate),
     };
   } catch (error) {
@@ -68,6 +69,7 @@ export const saveGameState = async (
             ? BigInt(state.metalFactory.upgradeStartTime)
             : null,
         metalFactoryUpgradeDuration: BigInt(state.metalFactory.upgradeDuration),
+        fleet: JSON.stringify(state.fleet || []),
         lastUpdate: BigInt(state.lastUpdate),
       },
       update: {
@@ -78,6 +80,7 @@ export const saveGameState = async (
             ? BigInt(state.metalFactory.upgradeStartTime)
             : null,
         metalFactoryUpgradeDuration: BigInt(state.metalFactory.upgradeDuration),
+        fleet: JSON.stringify(state.fleet || []),
         lastUpdate: BigInt(state.lastUpdate),
       },
     });
@@ -115,6 +118,7 @@ export const createGameState = async (
             ? BigInt(state.metalFactory.upgradeStartTime)
             : null,
         metalFactoryUpgradeDuration: BigInt(state.metalFactory.upgradeDuration),
+        fleet: JSON.stringify(state.fleet || []),
         lastUpdate: BigInt(state.lastUpdate),
       },
     });
