@@ -1,22 +1,27 @@
 {
-  "name": "adventure-server",
-  "version": "1.0.0",
-  "description": "REST API server for Adventure game",
-  "main": "index.ts",
+  "name": "@terminus/server",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "tsx index.ts",
-    "dev": "tsx watch index.ts",
-    "migrate": "cd .. && npx prisma migrate deploy"
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "@prisma/client": "^7.1.0"
+    "@prisma/client": "^6.5.0",
+    "@terminus/shared": "workspace:*",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/cors": "^2.8.17",
-    "tsx": "^4.6.2",
-    "typescript": "^5.3.2"
+    "@types/express": "^5.0.0",
+    "@types/uuid": "^10.0.0",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
   }
 }

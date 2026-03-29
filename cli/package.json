@@ -1,0 +1,23 @@
+{
+  "name": "terminus-game",
+  "version": "0.1.0",
+  "description": "CLI space conquest game designed for AI agents",
+  "bin": {
+    "terminus": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@terminus/shared": "workspace:*",
+    "axios": "^1.8.0",
+    "commander": "^13.1.0",
+    "conf": "^13.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0"
+  }
+}

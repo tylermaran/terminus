@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  apiKey    String   @unique @map("api_key")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  bodies         CelestialBody[]
+  resourceStores ResourceStore[]
+  researches     Research[]
+  logEntries     LogEntry[]
+
+  @@map("players")
+}
+
+model CelestialBody {
+  id               String  @id @default(uuid())
+  name             String
+  type             String
+  x                Float
+  y                Float
+  z                Float
+  radius           Float
+  resourceRichness Float   @default(1.0) @map("resource_richness")
+  ownerId          String? @map("owner_id")
+
+  owner      Player?         @relation(fields: [ownerId], references: [id])
+  structures Structure[]
+  resources  ResourceStore?
+
+  @@index([type])
+  @@index([ownerId])
+  @@map("celestial_bodies")
+}
+
+model Structure {
+  id          String    @id @default(uuid())
+  bodyId      String    @map("body_id")
+  type        String
+  level       Int       @default(1)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  completesAt DateTime? @map("completes_at")
+
+  body CelestialBody @relation(fields: [bodyId], references: [id])
+
+  @@index([bodyId])
+  @@map("structures")
+}
+
+model ResourceStore {
+  id               String   @id @default(uuid())
+  bodyId           String   @unique @map("body_id")
+  playerId         String   @map("player_id")
+  minerals         Float    @default(0)
+  energy           Float    @default(0)
+  alloys           Float    @default(0)
+  credits          Float    @default(0)
+  researchPoints   Float    @default(0) @map("research_points")
+  lastCalculatedAt DateTime @default(now()) @map("last_calculated_at")
+
+  body   CelestialBody @relation(fields: [bodyId], references: [id])
+  player Player        @relation(fields: [playerId], references: [id])
+
+  @@index([playerId])
+  @@map("resource_stores")
+}
+
+model Technology {
+  id              String  @id
+  name            String
+  description     String
+  category        String
+  cost            Float
+  durationSeconds Int     @map("duration_seconds")
+  prerequisiteId  String? @map("prerequisite_id")
+
+  prerequisite Technology?  @relation("TechTree", fields: [prerequisiteId], references: [id])
+  dependents   Technology[] @relation("TechTree")
+  researches   Research[]
+
+  @@map("technologies")
+}
+
+model Research {
+  id           String   @id @default(uuid())
+  playerId     String   @map("player_id")
+  technologyId String   @map("technology_id")
+  startedAt    DateTime @default(now()) @map("started_at")
+  completesAt  DateTime @map("completes_at")
+  completed    Boolean  @default(false)
+
+  player     Player     @relation(fields: [playerId], references: [id])
+  technology Technology @relation(fields: [technologyId], references: [id])
+
+  @@index([playerId])
+  @@map("researches")
+}
+
+model LogEntry {
+  id        String   @id @default(uuid())
+  playerId  String   @map("player_id")
+  content   String
+  tags      String[] @default([])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@index([playerId])
+  @@index([tags])
+  @@map("log_entries")
+}
