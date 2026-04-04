@@ -38,6 +38,18 @@ make lint-fix         # eslint . --fix
 make format           # prettier --write .
 ```
 
+## Claude Code setup
+
+To allow Claude Code to run `terminus` and `make` commands without confirmation prompts, add this to `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": ["Bash(terminus *)", "Bash(make *)"]
+  }
+}
+```
+
 ## Coding conventions
 
 - **TypeScript** everywhere — strict mode, no `any` without justification.

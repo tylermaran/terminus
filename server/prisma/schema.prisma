@@ -33,7 +33,7 @@ model CelestialBody {
   resourceRichness Float   @default(1.0) @map("resource_richness")
   ownerId          String? @map("owner_id")
 
-  owner      Player?         @relation(fields: [ownerId], references: [id])
+  owner      Player?        @relation(fields: [ownerId], references: [id])
   structures Structure[]
   resources  ResourceStore?
 

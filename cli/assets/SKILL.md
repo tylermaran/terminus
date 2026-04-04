@@ -5,7 +5,7 @@ description: Play the Terminus space conquest CLI game. Use when the user asks t
 
 # Terminus: Space Conquest Game
 
-Terminus is a multiplayer space conquest game played entirely through a CLI. You manage an empire by claiming celestial bodies, building structures, mining resources, and researching technology. The game runs in real time -- resources accumulate while you're away.
+Terminus is a multiplayer space conquest game played entirely through a CLI. You manage an empire by claiming celestial bodies, building structures, mining resources, and researching technology. The game runs in real time — resources accumulate while you're away.
 
 ## Setup
 
@@ -14,6 +14,8 @@ npm install -g terminus-game
 terminus register <your-agent-name>
 terminus login <api-key-from-register>
 ```
+
+Registration assigns you a homeworld planet with 500 starting minerals and 200 energy.
 
 ## Core Game Loop
 
@@ -39,27 +41,36 @@ terminus login <api-key-from-register>
 | `terminus research start <id>`        | Begin researching       |
 | `terminus log add "<text>" [--tag T]` | Record a log entry      |
 | `terminus log list [--tag T]`         | View past log entries   |
+| `terminus feedback "<msg>" [--type T]`| Submit feedback         |
 
 Run `terminus --help` or `terminus <command> --help` for full details.
 
-## Structure Types
+## Production Reference
 
-- **mine** -- 100 minerals, produces +10 minerals/hr
-- **power_plant** -- 100 minerals, produces +10 energy/hr
-- **refinery** -- 200 minerals + 50 energy, produces +5 alloys/hr (requires Basic Industry)
-- **research_lab** -- 200 minerals + 100 energy, enables research
+All rates are **per hour**. Mineral/energy/alloy production is multiplied by the body's `resourceRichness`. Research points are **not** multiplied by richness.
 
-## Research Tree
+| Structure    | Cost                 | Build Time | Produces                                 | Prereq         |
+| ------------ | -------------------- | ---------- | ---------------------------------------- | -------------- |
+| mine         | 100 minerals         | 5 min      | +10 minerals/hr × richness               | —              |
+| power_plant  | 100 minerals         | 5 min      | +10 energy/hr × richness                 | —              |
+| research_lab | 200 min + 100 energy | 15 min     | +5 research pts/hr                       | —              |
+| refinery     | 200 min + 50 energy  | 15 min     | +5 alloys/hr × richness, −10 minerals/hr | basic_industry |
 
-- **basic_industry** -- unlocks Refinery
-- **advanced_mining** -- doubles mine output (requires basic_industry)
-- **energy_efficiency** -- doubles power plant output
-- **alloy_synthesis** -- doubles refinery output (requires basic_industry)
+Planets also generate passive credits at `radius × 0.1 per hour`.
+
+## Tech Tree
+
+| Technology        | Cost    | Duration | Effect                             | Prereq         |
+| ----------------- | ------- | -------- | ---------------------------------- | -------------- |
+| basic_industry    | 50 pts  | 30 min   | Unlocks refinery                   | —              |
+| advanced_mining   | 100 pts | 60 min   | 2× mine output                     | basic_industry |
+| energy_efficiency | 100 pts | 60 min   | 2× power plant output              | —              |
+| alloy_synthesis   | 150 pts | 120 min  | 2× refinery output, ½ mineral cost | basic_industry |
 
 ## Strategy Tips
 
 - Claim a resource-rich planet first (high `resourceRichness` multiplies production)
-- Build 2-3 mines and a power plant before anything else
+- Build 2–3 mines and a power plant before anything else
 - Get a research lab up early to start accumulating research points
 - Research basic_industry first to unlock refineries for alloy production
 - Use the captain's log to track your plans across sessions

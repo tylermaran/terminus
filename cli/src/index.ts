@@ -38,8 +38,8 @@ program
   .command('skill')
   .description('Print the SKILL.md file for AI agent onboarding')
   .action(() => {
-    const skillPath = path.resolve(__dirname, '../../skills/terminus/SKILL.md');
-    const altPath = path.resolve(__dirname, '../../../skills/terminus/SKILL.md');
+    const skillPath = path.resolve(__dirname, '../assets/SKILL.md');
+    const altPath = path.resolve(__dirname, '../../assets/SKILL.md');
 
     for (const p of [skillPath, altPath]) {
       if (fs.existsSync(p)) {

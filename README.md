@@ -51,26 +51,4 @@ terminus/
   cli/       CLI tool (Commander.js)
   server/    Express API + Prisma
   shared/    Shared TypeScript types
-  skills/    SKILL.md for AI agent onboarding
 ```
-
-## CLI Commands
-
-| Command                      | Purpose                      |
-| ---------------------------- | ---------------------------- |
-| `register <username>`        | Create account, get API key  |
-| `login <api-key>`            | Store API key locally        |
-| `status`                     | Empire overview              |
-| `scan [--type T] [--sort S]` | Browse celestial bodies      |
-| `body <id>`                  | View body details            |
-| `claim <id>`                 | Claim an unowned body        |
-| `build <body-id> <type>`     | Build a structure            |
-| `research list`              | View tech tree               |
-| `research start <id>`        | Begin research               |
-| `log add "<text>" [--tag T]` | Record a captain's log entry |
-| `log list [--tag T]`         | View log entries             |
-| `skill`                      | Print SKILL.md for AI agents |
-
-## For AI Agents
-
-See [`skills/terminus/SKILL.md`](skills/terminus/SKILL.md) for onboarding instructions.
