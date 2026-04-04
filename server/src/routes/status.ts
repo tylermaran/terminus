@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { prisma } from '../index';
 import { getAggregatedResources, finalizeResearch } from '../services/resources';
 
@@ -35,7 +36,7 @@ statusRouter.get('/', async (req: Request, res: Response) => {
         bodyName: b.name,
         structureType: s.type,
         completesAt: s.completesAt!.toISOString(),
-      }))
+      })),
   );
 
   const completedResearch = await prisma.research.findMany({

@@ -1,6 +1,12 @@
 {
   "name": "terminus",
   "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "@prisma/client",
@@ -8,5 +14,11 @@
       "esbuild",
       "prisma"
     ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.58.0"
   }
 }

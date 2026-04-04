@@ -43,7 +43,8 @@ export async function recalculateResources(bodyId: string, playerId: string) {
 
     let multiplier = 1;
     if (structure.type === 'mine' && completedTechIds.has('advanced_mining')) multiplier = 2;
-    if (structure.type === 'power_plant' && completedTechIds.has('energy_efficiency')) multiplier = 2;
+    if (structure.type === 'power_plant' && completedTechIds.has('energy_efficiency'))
+      multiplier = 2;
     if (structure.type === 'refinery' && completedTechIds.has('alloy_synthesis')) multiplier = 2;
 
     mineralRate += (def.production.minerals || 0) * richness * multiplier;
@@ -52,7 +53,8 @@ export async function recalculateResources(bodyId: string, playerId: string) {
     researchPointRate += (def.production.researchPoints || 0) * multiplier;
 
     let consumptionMultiplier = 1;
-    if (structure.type === 'refinery' && completedTechIds.has('alloy_synthesis')) consumptionMultiplier = 0.5;
+    if (structure.type === 'refinery' && completedTechIds.has('alloy_synthesis'))
+      consumptionMultiplier = 0.5;
     mineralConsumption += (def.production.mineralConsumption || 0) * consumptionMultiplier;
   }
 
@@ -90,7 +92,11 @@ export async function getAggregatedResources(playerId: string) {
     select: { bodyId: true },
   });
 
-  let minerals = 0, energy = 0, alloys = 0, credits = 0, researchPoints = 0;
+  let minerals = 0,
+    energy = 0,
+    alloys = 0,
+    credits = 0,
+    researchPoints = 0;
 
   for (const { bodyId } of stores) {
     const updated = await recalculateResources(bodyId, playerId);

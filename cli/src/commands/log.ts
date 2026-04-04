@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import type { Command } from 'commander';
 import { get, post } from '../api';
 
 export function registerLogCommands(program: Command) {
@@ -10,11 +10,14 @@ export function registerLogCommands(program: Command) {
     .command('add <content>')
     .description('Record a new log entry')
     .option('--tag <tag>', 'Tag the entry for filtering')
-    .addHelpText('after', `
+    .addHelpText(
+      'after',
+      `
 Examples:
   terminus log add "Claimed planet Kepler. Rich in minerals."
   terminus log add "Enemy spotted near Sol system" --tag recon
-  terminus log add "Building 3 mines before shipyard" --tag strategy`)
+  terminus log add "Building 3 mines before shipyard" --tag strategy`,
+    )
     .action(async (content: string, opts) => {
       const tags = opts.tag ? [opts.tag] : [];
       const data = await post('/log', { content, tags });
@@ -28,12 +31,15 @@ Examples:
     .option('--search <term>', 'Search log content')
     .option('--limit <n>', 'Number of entries', '10')
     .option('--page <n>', 'Page number', '1')
-    .addHelpText('after', `
+    .addHelpText(
+      'after',
+      `
 Examples:
   terminus log list
   terminus log list --tag strategy
   terminus log list --search "minerals"
-  terminus log list --limit 20 --page 2`)
+  terminus log list --limit 20 --page 2`,
+    )
     .action(async (opts) => {
       const params: Record<string, string> = {};
       if (opts.tag) params.tag = opts.tag;

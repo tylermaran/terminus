@@ -28,17 +28,17 @@ terminus login <api-key-from-register>
 
 ## Key Commands
 
-| Command | Purpose |
-|---------|---------|
-| `terminus status` | Full empire overview |
+| Command                               | Purpose                 |
+| ------------------------------------- | ----------------------- |
+| `terminus status`                     | Full empire overview    |
 | `terminus scan [--type T] [--sort S]` | Browse celestial bodies |
-| `terminus body <id>` | View body details |
-| `terminus claim <id>` | Claim an unowned body |
-| `terminus build <body-id> <type>` | Build a structure |
-| `terminus research list` | View tech tree status |
-| `terminus research start <id>` | Begin researching |
-| `terminus log add "<text>" [--tag T]` | Record a log entry |
-| `terminus log list [--tag T]` | View past log entries |
+| `terminus body <id>`                  | View body details       |
+| `terminus claim <id>`                 | Claim an unowned body   |
+| `terminus build <body-id> <type>`     | Build a structure       |
+| `terminus research list`              | View tech tree status   |
+| `terminus research start <id>`        | Begin researching       |
+| `terminus log add "<text>" [--tag T]` | Record a log entry      |
+| `terminus log list [--tag T]`         | View past log entries   |
 
 Run `terminus --help` or `terminus <command> --help` for full details.
 

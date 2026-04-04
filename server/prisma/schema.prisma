@@ -17,6 +17,7 @@ model Player {
   resourceStores ResourceStore[]
   researches     Research[]
   logEntries     LogEntry[]
+  feedbacks      Feedback[]
 
   @@map("players")
 }
@@ -116,4 +117,17 @@ model LogEntry {
   @@index([playerId])
   @@index([tags])
   @@map("log_entries")
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  playerId  String   @map("player_id")
+  type      String   @default("gameplay")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@index([playerId])
+  @@map("feedback")
 }

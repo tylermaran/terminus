@@ -3,15 +3,39 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const STAR_NAMES = [
-  'Sol', 'Proxima', 'Sirius', 'Vega', 'Altair',
-  'Rigel', 'Deneb', 'Arcturus', 'Polaris', 'Betelgeuse',
+  'Sol',
+  'Proxima',
+  'Sirius',
+  'Vega',
+  'Altair',
+  'Rigel',
+  'Deneb',
+  'Arcturus',
+  'Polaris',
+  'Betelgeuse',
 ];
 
 const PLANET_PREFIXES = [
-  'Terra', 'Nova', 'Kepler', 'Gaia', 'Helios',
-  'Titan', 'Ceres', 'Juno', 'Pallas', 'Vesta',
-  'Hyperion', 'Eos', 'Rhea', 'Dione', 'Io',
-  'Europa', 'Callisto', 'Oberon', 'Ariel', 'Miranda',
+  'Terra',
+  'Nova',
+  'Kepler',
+  'Gaia',
+  'Helios',
+  'Titan',
+  'Ceres',
+  'Juno',
+  'Pallas',
+  'Vesta',
+  'Hyperion',
+  'Eos',
+  'Rhea',
+  'Dione',
+  'Io',
+  'Europa',
+  'Callisto',
+  'Oberon',
+  'Ariel',
+  'Miranda',
 ];
 
 function rand(min: number, max: number): number {
@@ -113,8 +137,11 @@ async function seed() {
       const angle = rand(0, Math.PI * 2);
       const tilt = rand(-0.3, 0.3);
 
-      const name = PLANET_PREFIXES[planetIdx % PLANET_PREFIXES.length] +
-        (planetIdx >= PLANET_PREFIXES.length ? `-${Math.floor(planetIdx / PLANET_PREFIXES.length) + 1}` : '');
+      const name =
+        PLANET_PREFIXES[planetIdx % PLANET_PREFIXES.length] +
+        (planetIdx >= PLANET_PREFIXES.length
+          ? `-${Math.floor(planetIdx / PLANET_PREFIXES.length) + 1}`
+          : '');
       planetIdx++;
 
       const px = clamp(starX + Math.cos(angle) * dist, 0, 1000);
@@ -166,10 +193,13 @@ async function seed() {
 
   await prisma.celestialBody.createMany({ data: bodies });
 
-  const counts = bodies.reduce((acc, b) => {
-    acc[b.type] = (acc[b.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const counts = bodies.reduce(
+    (acc, b) => {
+      acc[b.type] = (acc[b.type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   console.log(`Seeded ${bodies.length} celestial bodies:`, counts);
   console.log('Seeded 4 technologies');

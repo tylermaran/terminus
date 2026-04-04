@@ -6,6 +6,7 @@ import { resourcesRouter } from './routes/resources';
 import { researchRouter } from './routes/research';
 import { logRouter } from './routes/log';
 import { statusRouter } from './routes/status';
+import { feedbackRouter } from './routes/feedback';
 import { authMiddleware } from './middleware/auth';
 
 export const prisma = new PrismaClient();
@@ -21,6 +22,7 @@ app.use('/resources', resourcesRouter);
 app.use('/research', researchRouter);
 app.use('/log', logRouter);
 app.use('/status', statusRouter);
+app.use('/feedback', feedbackRouter);
 
 const PORT = process.env.PORT || 3000;
 

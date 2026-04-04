@@ -1,7 +1,8 @@
-import { Router, Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { prisma } from '../index';
 import { recalculateResources, finalizeResearch } from '../services/resources';
-import { STRUCTURE_DEFINITIONS, STARTING_RESOURCES } from '@terminus/shared';
+import { STRUCTURE_DEFINITIONS } from '@terminus/shared';
 import type { StructureType } from '@terminus/shared';
 
 export const bodiesRouter = Router();
@@ -31,7 +32,7 @@ bodiesRouter.get('/', async (req: Request, res: Response) => {
     select: { x: true, y: true, z: true },
   });
 
-  let results = bodies.map((b) => {
+  const results = bodies.map((b) => {
     const entry: Record<string, unknown> = {
       id: b.id,
       name: b.name,
@@ -115,64 +116,6 @@ bodiesRouter.get('/:id', async (req: Request, res: Response) => {
   });
 });
 
-bodiesRouter.post('/:id/claim', async (req: Request, res: Response) => {
-  const body = await prisma.celestialBody.findUnique({
-    where: { id: req.params.id },
-  });
-
-  if (!body) {
-    res.status(404).json({ error: 'Body not found' });
-    return;
-  }
-
-  if (body.type === 'star') {
-    res.status(400).json({ error: 'Stars cannot be claimed. They are too hot.' });
-    return;
-  }
-
-  if (body.ownerId) {
-    res.status(409).json({ error: 'This body is already claimed' });
-    return;
-  }
-
-  const playerBodies = await prisma.celestialBody.count({
-    where: { ownerId: req.player!.id },
-  });
-
-  const isFirstClaim = playerBodies === 0;
-
-  await prisma.celestialBody.update({
-    where: { id: body.id },
-    data: { ownerId: req.player!.id },
-  });
-
-  const startingResources = isFirstClaim ? STARTING_RESOURCES : {
-    minerals: 0,
-    energy: 0,
-    alloys: 0,
-    credits: 0,
-    researchPoints: 0,
-  };
-
-  await prisma.resourceStore.create({
-    data: {
-      bodyId: body.id,
-      playerId: req.player!.id,
-      ...startingResources,
-    },
-  });
-
-  res.json({
-    message: `Claimed ${body.name}!` + (isFirstClaim ? ' Starting resources granted.' : ''),
-    body: {
-      id: body.id,
-      name: body.name,
-      type: body.type,
-    },
-    resources: startingResources,
-  });
-});
-
 bodiesRouter.post('/:id/build', async (req: Request, res: Response) => {
   const { type } = req.body;
   const playerId = req.player!.id;
@@ -217,7 +160,11 @@ bodiesRouter.post('/:id/build', async (req: Request, res: Response) => {
     return;
   }
 
-  if (store.minerals < def.cost.minerals || store.energy < def.cost.energy || store.alloys < def.cost.alloys) {
+  if (
+    store.minerals < def.cost.minerals ||
+    store.energy < def.cost.energy ||
+    store.alloys < def.cost.alloys
+  ) {
     res.status(400).json({
       error: 'Insufficient resources',
       required: def.cost,

@@ -79,19 +79,22 @@ export interface StructureCost {
   alloys: number;
 }
 
-export const STRUCTURE_DEFINITIONS: Record<StructureType, {
-  name: string;
-  cost: StructureCost;
-  buildTimeSeconds: number;
-  prerequisiteTech: string | null;
-  production: {
-    minerals?: number;
-    energy?: number;
-    alloys?: number;
-    researchPoints?: number;
-    mineralConsumption?: number;
-  };
-}> = {
+export const STRUCTURE_DEFINITIONS: Record<
+  StructureType,
+  {
+    name: string;
+    cost: StructureCost;
+    buildTimeSeconds: number;
+    prerequisiteTech: string | null;
+    production: {
+      minerals?: number;
+      energy?: number;
+      alloys?: number;
+      researchPoints?: number;
+      mineralConsumption?: number;
+    };
+  }
+> = {
   mine: {
     name: 'Mine',
     cost: { minerals: 100, energy: 0, alloys: 0 },

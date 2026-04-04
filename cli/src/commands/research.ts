@@ -1,17 +1,18 @@
-import { Command } from 'commander';
+import type { Command } from 'commander';
 import { get, post } from '../api';
 
 export function registerResearchCommands(program: Command) {
-  const research = program
-    .command('research')
-    .description('Manage technology research');
+  const research = program.command('research').description('Manage technology research');
 
   research
     .command('list')
     .description('List all technologies and their research status')
-    .addHelpText('after', `
+    .addHelpText(
+      'after',
+      `
 Examples:
-  terminus research list`)
+  terminus research list`,
+    )
     .action(async () => {
       const data = await get('/research');
 
@@ -31,9 +32,12 @@ Examples:
         const icon = statusIcon[tech.status] || tech.status;
         console.log(`${icon} ${tech.name} (${tech.id})`);
         console.log(`    ${tech.description}`);
-        console.log(`    Cost: ${tech.cost} research pts | Duration: ${Math.round(tech.durationSeconds / 60)} min`);
+        console.log(
+          `    Cost: ${tech.cost} research pts | Duration: ${Math.round(tech.durationSeconds / 60)} min`,
+        );
         if (tech.prerequisiteName) console.log(`    Requires: ${tech.prerequisiteName}`);
-        if (tech.completesAt) console.log(`    Completes: ${new Date(tech.completesAt).toLocaleString()}`);
+        if (tech.completesAt)
+          console.log(`    Completes: ${new Date(tech.completesAt).toLocaleString()}`);
         console.log();
       }
     });
@@ -41,10 +45,13 @@ Examples:
   research
     .command('start <tech-id>')
     .description('Begin researching a technology')
-    .addHelpText('after', `
+    .addHelpText(
+      'after',
+      `
 Examples:
   terminus research start basic_industry
-  terminus research start energy_efficiency`)
+  terminus research start energy_efficiency`,
+    )
     .action(async (techId: string) => {
       const data = await post(`/research/${techId}`);
       console.log(data.message);

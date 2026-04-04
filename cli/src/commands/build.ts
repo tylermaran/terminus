@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import type { Command } from 'commander';
 import { post } from '../api';
 import { STRUCTURE_DEFINITIONS } from '@terminus/shared';
 import type { StructureType } from '@terminus/shared';
@@ -9,7 +9,9 @@ export function registerBuildCommands(program: Command) {
   program
     .command('build <body-id> <type>')
     .description(`Build a structure on an owned body. Types: ${validTypes}`)
-    .addHelpText('after', `
+    .addHelpText(
+      'after',
+      `
 Structure types:
   mine          100 minerals, +10 minerals/hr, 5 min build
   power_plant   100 minerals, +10 energy/hr, 5 min build
@@ -19,7 +21,8 @@ Structure types:
 Examples:
   terminus build abc-123 mine
   terminus build abc-123 power_plant
-  terminus build abc-123 research_lab`)
+  terminus build abc-123 research_lab`,
+    )
     .action(async (bodyId: string, type: string) => {
       if (!STRUCTURE_DEFINITIONS[type as StructureType]) {
         console.error(`Invalid structure type: ${type}`);

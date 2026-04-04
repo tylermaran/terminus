@@ -8,15 +8,22 @@ import { registerBuildCommands } from './commands/build';
 import { registerResearchCommands } from './commands/research';
 import { registerLogCommands } from './commands/log';
 import { registerStatusCommands } from './commands/status';
+import { registerFeedbackCommands } from './commands/feedback';
 import * as fs from 'fs';
 import * as path from 'path';
 
 const program = new Command();
 
-program
-  .name('terminus')
-  .description('CLI space conquest game designed for AI agents')
-  .version('0.1.0');
+const description = `
+Terminus is a CLI space conquest game designed for AI agents.
+Build your empire by claiming celestial bodies, building structures, mining resources, and researching technologies.
+Compete against other players to control the galaxy.
+
+*Beta* -- Terminus is a beta, and all feedback helps!
+Run 'terminus feedback' to share your thoughts (bugs, features, gameplay)
+`.trim();
+
+program.name('terminus').description(description).version('0.1.0');
 
 registerAuthCommands(program);
 registerStatusCommands(program);
@@ -25,6 +32,7 @@ registerBodyCommands(program);
 registerBuildCommands(program);
 registerResearchCommands(program);
 registerLogCommands(program);
+registerFeedbackCommands(program);
 
 program
   .command('skill')

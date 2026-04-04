@@ -1,4 +1,4 @@
-.PHONY: install build server dev cli shim db-setup db-push db-seed db-reset prisma-generate clean
+.PHONY: install build server dev cli shim db-setup db-push db-seed db-reset prisma-generate clean lint lint-fix format
 
 # Install all workspace dependencies
 install:
@@ -52,6 +52,18 @@ prisma-generate:
 # Build shared types (run this after editing shared/types.ts)
 shared:
 	cd shared && pnpm exec tsc
+
+# Lint all TypeScript files
+lint:
+	pnpm run lint
+
+# Lint and auto-fix
+lint-fix:
+	pnpm run lint:fix
+
+# Format all files with Prettier
+format:
+	pnpm run format
 
 # Remove all build artifacts and node_modules
 clean:

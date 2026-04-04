@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { prisma } from '../index';
 import { finalizeResearch, getAggregatedResources } from '../services/resources';
 
@@ -44,7 +45,10 @@ researchRouter.get('/', async (req: Request, res: Response) => {
       prerequisiteName: tech.prerequisite?.name || null,
       status,
       ...(research && !research.completed
-        ? { startedAt: research.startedAt.toISOString(), completesAt: research.completesAt.toISOString() }
+        ? {
+            startedAt: research.startedAt.toISOString(),
+            completesAt: research.completesAt.toISOString(),
+          }
         : {}),
     };
   });
@@ -102,7 +106,9 @@ researchRouter.post('/:techId', async (req: Request, res: Response) => {
     },
   });
   if (!hasLab) {
-    res.status(400).json({ error: 'You need an operational Research Lab to research technologies' });
+    res
+      .status(400)
+      .json({ error: 'You need an operational Research Lab to research technologies' });
     return;
   }
 

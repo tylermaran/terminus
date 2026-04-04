@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import type { Command } from 'commander';
 import { get } from '../api';
 
 export function registerScanCommands(program: Command) {
@@ -9,12 +9,15 @@ export function registerScanCommands(program: Command) {
     .option('--sort <field>', 'Sort by: distance, richness')
     .option('--page <n>', 'Page number', '1')
     .option('--limit <n>', 'Results per page', '20')
-    .addHelpText('after', `
+    .addHelpText(
+      'after',
+      `
 Examples:
   terminus scan                          # List all nearby bodies
   terminus scan --type planet            # Only planets
   terminus scan --type asteroid --sort richness  # Richest asteroids
-  terminus scan --page 2 --limit 10      # Paginate results`)
+  terminus scan --page 2 --limit 10      # Paginate results`,
+    )
     .action(async (opts) => {
       const params: Record<string, string> = {};
       if (opts.type) params.type = opts.type;
