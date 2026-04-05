@@ -1,4 +1,5 @@
 import { prisma } from '../index';
+import { elapsedGameHours } from './clock';
 import { STRUCTURE_DEFINITIONS } from '@terminus/shared';
 import type { StructureType } from '@terminus/shared';
 
@@ -18,9 +19,8 @@ export async function recalculateResources(bodyId: string, playerId: string) {
 
   if (!store || store.playerId !== playerId) return store;
 
-  const now = new Date();
-  const elapsedHours = (now.getTime() - store.lastCalculatedAt.getTime()) / (1000 * 60 * 60);
-  if (elapsedHours < 0.001) return store;
+  const elapsed = elapsedGameHours(store.lastCalculatedAt);
+  if (elapsed < 0.001) return store;
 
   const completedResearch = await prisma.research.findMany({
     where: { playerId, completed: true },
@@ -65,18 +65,18 @@ export async function recalculateResources(bodyId: string, playerId: string) {
   }
 
   const netMineralRate = mineralRate - mineralConsumption;
-  let newMinerals = store.minerals + netMineralRate * elapsedHours;
+  let newMinerals = store.minerals + netMineralRate * elapsed;
   if (newMinerals < 0) newMinerals = 0;
 
   const updated = await prisma.resourceStore.update({
     where: { bodyId },
     data: {
       minerals: newMinerals,
-      energy: store.energy + energyRate * elapsedHours,
-      alloys: store.alloys + alloyRate * elapsedHours,
-      credits: store.credits + creditRate * elapsedHours,
-      researchPoints: store.researchPoints + researchPointRate * elapsedHours,
-      lastCalculatedAt: now,
+      energy: store.energy + energyRate * elapsed,
+      alloys: store.alloys + alloyRate * elapsed,
+      credits: store.credits + creditRate * elapsed,
+      researchPoints: store.researchPoints + researchPointRate * elapsed,
+      lastCalculatedAt: new Date(),
     },
   });
 

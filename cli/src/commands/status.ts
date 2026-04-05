@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import { get } from '../api';
+import { formatCompletesAt } from '../format';
 
 export function registerStatusCommands(program: Command) {
   program
@@ -28,14 +29,14 @@ Examples:
       }
       for (const b of data.bodies) {
         const structs = b.structures.length > 0 ? b.structures.join(', ') : 'empty';
-        console.log(`  ${b.name} (${b.type}) -- ${structs}`);
+        console.log(`  ${b.name} [${b.id}] (${b.type}) -- ${structs}`);
       }
 
       if (data.activeConstruction.length > 0) {
         console.log(`\nUnder Construction:`);
         for (const c of data.activeConstruction) {
           console.log(
-            `  ${c.structureType} on ${c.bodyName} -- ready ${new Date(c.completesAt).toLocaleString()}`,
+            `  ${c.structureType} on ${c.bodyName} -- ready ${formatCompletesAt(c.completesAt)}`,
           );
         }
       }
@@ -46,7 +47,7 @@ Examples:
 
       if (data.activeResearch) {
         console.log(
-          `\nResearching: ${data.activeResearch.name} -- ready ${new Date(data.activeResearch.completesAt).toLocaleString()}`,
+          `\nResearching: ${data.activeResearch.name} -- ready ${formatCompletesAt(data.activeResearch.completesAt)}`,
         );
       }
 

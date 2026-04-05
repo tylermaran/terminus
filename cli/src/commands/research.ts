@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import { get, post } from '../api';
+import { formatCompletesAt } from '../format';
 
 export function registerResearchCommands(program: Command) {
   const research = program.command('research').description('Manage technology research');
@@ -37,7 +38,7 @@ Examples:
         );
         if (tech.prerequisiteName) console.log(`    Requires: ${tech.prerequisiteName}`);
         if (tech.completesAt)
-          console.log(`    Completes: ${new Date(tech.completesAt).toLocaleString()}`);
+          console.log(`    Completes: ${formatCompletesAt(tech.completesAt)}`);
         console.log();
       }
     });
@@ -55,6 +56,6 @@ Examples:
     .action(async (techId: string) => {
       const data = await post(`/research/${techId}`);
       console.log(data.message);
-      console.log(`  Completes at: ${new Date(data.research.completesAt).toLocaleString()}`);
+      console.log(`  Completes at: ${formatCompletesAt(data.research.completesAt)}`);
     });
 }

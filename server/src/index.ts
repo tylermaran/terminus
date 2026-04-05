@@ -8,6 +8,7 @@ import { logRouter } from './routes/log';
 import { statusRouter } from './routes/status';
 import { feedbackRouter } from './routes/feedback';
 import { authMiddleware } from './middleware/auth';
+import { GAME_SPEED } from './services/clock';
 
 export const prisma = new PrismaClient();
 
@@ -15,6 +16,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/auth', authRouter);
+app.get('/clock', (_req, res) => res.json({ gameSpeed: GAME_SPEED }));
 
 app.use(authMiddleware);
 app.use('/bodies', bodiesRouter);

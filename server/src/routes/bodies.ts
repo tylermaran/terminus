@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { prisma } from '../index';
 import { recalculateResources, finalizeResearch } from '../services/resources';
+import { completesAt } from '../services/clock';
 import { STRUCTURE_DEFINITIONS } from '@terminus/shared';
 import type { StructureType } from '@terminus/shared';
 
@@ -177,14 +178,14 @@ bodiesRouter.post('/:id/build', async (req: Request, res: Response) => {
     return;
   }
 
-  const completesAt = new Date(Date.now() + def.buildTimeSeconds * 1000);
+  const buildCompletesAt = completesAt(def.buildTimeSeconds);
 
   const [structure] = await prisma.$transaction([
     prisma.structure.create({
       data: {
         bodyId: body.id,
         type: structType,
-        completesAt,
+        completesAt: buildCompletesAt,
       },
     }),
     prisma.resourceStore.update({
@@ -202,7 +203,7 @@ bodiesRouter.post('/:id/build', async (req: Request, res: Response) => {
     structure: {
       id: structure.id,
       type: structure.type,
-      completesAt: completesAt.toISOString(),
+      completesAt: buildCompletesAt.toISOString(),
     },
   });
 });

@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import { get } from '../api';
+import { formatCompletesAt } from '../format';
 
 export function registerBodyCommands(program: Command) {
   program
@@ -25,7 +26,7 @@ Examples:
         for (const s of b.structures) {
           const status = s.operational
             ? 'operational'
-            : `building (ready ${new Date(s.completesAt).toLocaleString()})`;
+            : `building (ready ${formatCompletesAt(s.completesAt)})`;
           console.log(`  - ${s.type} [${status}]`);
         }
       }

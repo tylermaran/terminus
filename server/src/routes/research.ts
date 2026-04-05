@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { prisma } from '../index';
 import { finalizeResearch, getAggregatedResources } from '../services/resources';
+import { completesAt } from '../services/clock';
 
 export const researchRouter = Router();
 
@@ -138,12 +139,12 @@ researchRouter.post('/:techId', async (req: Request, res: Response) => {
     remaining -= deduct;
   }
 
-  const completesAt = new Date(Date.now() + tech.durationSeconds * 1000);
+  const researchCompletesAt = completesAt(tech.durationSeconds);
   const research = await prisma.research.create({
     data: {
       playerId,
       technologyId: techId,
-      completesAt,
+      completesAt: researchCompletesAt,
     },
   });
 
@@ -153,7 +154,7 @@ researchRouter.post('/:techId', async (req: Request, res: Response) => {
       id: research.id,
       technologyId: techId,
       technologyName: tech.name,
-      completesAt: completesAt.toISOString(),
+      completesAt: researchCompletesAt.toISOString(),
     },
   });
 });

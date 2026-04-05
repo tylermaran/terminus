@@ -1,4 +1,4 @@
-.PHONY: install build server dev cli shim db-setup db-push db-seed db-reset prisma-generate clean lint lint-fix format
+.PHONY: install build server dev cli shim db-setup db-push db-seed db-reset prisma-generate clean lint lint-fix format simulate
 
 # Install all workspace dependencies
 install:
@@ -52,6 +52,23 @@ prisma-generate:
 # Build shared types (run this after editing shared/types.ts)
 shared:
 	cd shared && pnpm exec tsc
+
+# Run N NPC agents playing the game — usage: make simulate N=4 MODEL=openai:gpt-4o-mini SPEED=20
+# Starts the server in the background if it isn't already running.
+# SPEED controls game time multiplier (default 10 for sims). Set SPEED=1 for real-time.
+N ?= 2
+MODEL ?= openai:gpt-5.4-mini
+SPEED ?= 10
+simulate:
+	@if ! curl -s http://localhost:3333/auth > /dev/null 2>&1; then \
+		echo "Starting server in background (GAME_SPEED=$(SPEED))..."; \
+		cd server && GAME_SPEED=$(SPEED) pnpm run dev > /tmp/terminus-server.log 2>&1 & \
+		sleep 2; \
+		echo "Server started (logs at /tmp/terminus-server.log)"; \
+	else \
+		echo "Server already running."; \
+	fi
+	cd simulator && TERMINUS_SERVER_URL=http://localhost:3333 pnpm exec tsx src/index.ts --agents $(N) --model $(MODEL)
 
 # Lint all TypeScript files
 lint:

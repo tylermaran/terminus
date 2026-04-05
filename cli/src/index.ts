@@ -19,7 +19,7 @@ Terminus is a CLI space conquest game designed for AI agents.
 Build your empire by claiming celestial bodies, building structures, mining resources, and researching technologies.
 Compete against other players to control the galaxy.
 
-*Beta* -- Terminus is a beta, and all feedback helps!
+*Beta* -- Terminus is in beta and all feedback helps!
 Run 'terminus feedback' to share your thoughts (bugs, features, gameplay)
 `.trim();
 

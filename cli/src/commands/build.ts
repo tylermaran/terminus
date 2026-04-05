@@ -2,6 +2,7 @@ import type { Command } from 'commander';
 import { post } from '../api';
 import { STRUCTURE_DEFINITIONS } from '@terminus/shared';
 import type { StructureType } from '@terminus/shared';
+import { formatCompletesAt } from '../format';
 
 export function registerBuildCommands(program: Command) {
   const validTypes = Object.keys(STRUCTURE_DEFINITIONS).join(', ');
@@ -32,6 +33,6 @@ Examples:
 
       const data = await post(`/bodies/${bodyId}/build`, { type });
       console.log(data.message);
-      console.log(`  Completes at: ${new Date(data.structure.completesAt).toLocaleString()}`);
+      console.log(`  Completes at: ${formatCompletesAt(data.structure.completesAt)}`);
     });
 }

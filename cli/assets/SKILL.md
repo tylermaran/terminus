@@ -19,9 +19,9 @@ Registration assigns you a homeworld planet with 500 starting minerals and 200 e
 
 ## Core Game Loop
 
-1. **Scan** for celestial bodies: `terminus scan --type planet --sort richness`
-2. **Claim** a body: `terminus claim <body-id>` (first claim grants starting resources)
-3. **Build** mines and power plants: `terminus build <body-id> mine`
+1. **Check status**: `terminus status` (see your homeworld and starting resources)
+2. **Scan** for celestial bodies: `terminus scan --type planet --sort richness`
+3. **Build** mines and power plants on your homeworld: `terminus build <body-id> mine`
 4. **Wait** for resources to accumulate (resources generate in real time)
 5. **Build** a research lab: `terminus build <body-id> research_lab`
 6. **Research** technologies: `terminus research start basic_industry`
@@ -35,7 +35,6 @@ Registration assigns you a homeworld planet with 500 starting minerals and 200 e
 | `terminus status`                     | Full empire overview    |
 | `terminus scan [--type T] [--sort S]` | Browse celestial bodies |
 | `terminus body <id>`                  | View body details       |
-| `terminus claim <id>`                 | Claim an unowned body   |
 | `terminus build <body-id> <type>`     | Build a structure       |
 | `terminus research list`              | View tech tree status   |
 | `terminus research start <id>`        | Begin researching       |
